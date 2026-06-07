@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>نظام الفواتير وعروض الأسعار</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --green:#1D9E75;--green-dark:#0F6E56;--green-light:#E1F5EE;
+  --blue:#185FA5;--blue-light:#E6F1FB;
+  --red:#E24B4A;--amber:#BA7517;
+  --bg:#f0f2f5;--card:#fff;--border:#e2e8f0;
+  --text:#1a202c;--text2:#718096;--text3:#a0aec0;
+}
+body{font-family:'Segoe UI',Tahoma,Arial,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+.app{display:flex;flex-direction:column;min-height:100vh}
+.topnav{background:linear-gradient(135deg,#0a5540 0%,#1D9E75 100%);color:#fff;padding:0 16px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:100;height:54px;box-shadow:0 2px 12px rgba(10,85,64,.4)}
+.topnav h1{font-size:15px;font-weight:600;flex:1}
+.menu-btn{background:none;border:none;color:#fff;font-size:24px;cursor:pointer;padding:4px;line-height:1}
+.layout{display:flex;flex:1}
+.sidebar{width:226px;background:var(--card);border-left:1px solid var(--border);padding:14px 0;flex-shrink:0}
+.sidebar-brand{padding:0 14px 14px;border-bottom:1px solid var(--border);margin-bottom:6px}
+.sidebar-brand-name{font-size:13px;font-weight:700;color:var(--green-dark)}
+.sidebar-brand-sub{font-size:11px;color:var(--text3);margin-top:2px}
+.sidebar-item{display:flex;align-items:center;gap:9px;padding:9px 14px;cursor:pointer;font-size:14px;color:var(--text2);border-right:3px solid transparent;transition:all .15s;margin:2px 8px;border-radius:8px}
+.sidebar-item:hover{background:var(--green-light);color:var(--green-dark)}
+.sidebar-item.active{background:var(--green-light);color:var(--green-dark);border-right-color:var(--green);font-weight:600}
+.sidebar-ico{font-size:16px;width:20px;text-align:center}
+.sidebar-sep{height:1px;background:var(--border);margin:8px 0}
+.sidebar-label{font-size:10px;color:var(--text3);padding:6px 14px 3px;text-transform:uppercase;letter-spacing:1px;font-weight:700}
+.content{flex:1;padding:18px;overflow-x:hidden}
+.page-header{margin-bottom:18px}
+.page-header h2{font-size:19px;font-weight:700;color:var(--text)}
+.page-header p{font-size:13px;color:var(--text2);margin-top:3px}
+.page{display:none}.page.active{display:block}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:14px;box-shadow:0 1px 4px rgba(0,0,0,.05)}
+.card-title{font-size:14px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.stat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:18px}
+@media(min-width:640px){.stat-grid{grid-template-columns:repeat(4,1fr)}}
+.stat{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center;position:relative;overflow:hidden}
+.stat::before{content:'';position:absolute;top:0;right:0;left:0;height:3px;background:linear-gradient(90deg,#0F6E56,#1D9E75)}
+.stat-ico{font-size:22px;margin-bottom:7px}
+.stat-num{font-size:22px;font-weight:700;color:var(--green-dark)}
+.stat-lbl{font-size:11px;color:var(--text2);margin-top:3px}
+.form-grid{display:grid;grid-template-columns:1fr;gap:11px}
+@media(min-width:480px){.form-grid.two{grid-template-columns:1fr 1fr}}
+.fg{display:flex;flex-direction:column;gap:4px}
+label{font-size:12px;color:var(--text2);font-weight:700;letter-spacing:.2px}
+input,select,textarea{padding:9px 11px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;width:100%;font-family:inherit;color:var(--text);background:var(--card);transition:border .15s}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 3px rgba(29,158,117,.12)}
+textarea{resize:vertical;min-height:58px}
+.img-upload-box{border:2px dashed var(--border);border-radius:10px;padding:14px;text-align:center;cursor:pointer;transition:all .15s;background:#fafafa;min-height:80px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:4px}
+.img-upload-box:hover{border-color:var(--green);background:var(--green-light)}
+.img-upload-box input[type=file]{display:none}
+.img-preview{max-width:110px;max-height:65px;border-radius:6px;object-fit:contain}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 15px;border-radius:9px;border:1.5px solid var(--border);background:var(--card);cursor:pointer;font-size:13px;color:var(--text);white-space:nowrap;font-family:inherit;font-weight:500;transition:all .15s}
+.btn:hover{background:var(--bg)}
+.btn.primary{background:linear-gradient(135deg,#1D9E75,#0a5540);color:#fff;border-color:#0F6E56;box-shadow:0 2px 8px rgba(15,110,86,.3)}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn.secondary{background:var(--blue-light);color:var(--blue);border-color:#b5d4f4}
+.btn.danger{background:#FCEBEB;color:var(--red);border-color:#f7c1c1}
+.btn.sm{padding:5px 11px;font-size:12px}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700}
+.badge.inv{background:#E1F5EE;color:#085041}
+.badge.quo{background:#E6F1FB;color:#0C447C}
+.tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table.lst{width:100%;border-collapse:collapse;font-size:13px;min-width:480px}
+table.lst th{text-align:right;padding:10px 12px;border-bottom:1px solid var(--border);color:var(--text2);font-weight:700;white-space:nowrap;background:#f8fafc;font-size:11px;text-transform:uppercase;letter-spacing:.5px}
+table.lst td{padding:10px 12px;border-bottom:1px solid #f0f4f8;vertical-align:middle}
+table.lst tr:last-child td{border-bottom:none}
+table.lst tr:hover td{background:#f8fafc}
+.items-wrap{overflow-x:auto;border-radius:8px;border:1px solid var(--border)}
+table.items{width:100%;border-collapse:collapse;font-size:13px;min-width:600px}
+table.items th{background:linear-gradient(135deg,#0a5540,#1D9E75);color:#fff;padding:10px 8px;text-align:right;font-weight:700;font-size:11px;letter-spacing:.3px}
+table.items td{padding:6px 6px;border-bottom:1px solid #f0f4f8}
+table.items tr:last-child td{border-bottom:none}
+table.items tr:nth-child(even) td{background:#f8fafc}
+table.items input{padding:5px 7px;font-size:13px;border-radius:6px}
+.del-btn{background:none;border:none;color:var(--red);cursor:pointer;font-size:17px;padding:3px}
+.totals-box{margin-top:14px;background:linear-gradient(135deg,#f8fafc,#f0f5f0);border-radius:10px;padding:14px;border:1px solid #d1e8d8}
+.totals-row{display:flex;justify-content:space-between;padding:5px 0;font-size:14px;border-bottom:1px solid #e2e8f0;color:var(--text2)}
+.totals-row:last-child{border:none;font-weight:700;font-size:16px;color:var(--green-dark);padding-top:10px}
+
+/* ---- INVOICE DOC ---- */
+.inv-doc{background:#fff;max-width:860px;margin:0 auto;font-size:13px;font-family:'Segoe UI',Tahoma,Arial,sans-serif;border-radius:10px;overflow:hidden}
+.inv-topbar{background:linear-gradient(90deg,#0a5540,#1D9E75,#0a5540);height:7px}
+.inv-body{padding:22px}
+.inv-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:18px;gap:14px;flex-wrap:wrap}
+.inv-logo-block{display:flex;align-items:center;gap:12px}
+.inv-logo-img{max-width:100px;max-height:65px;object-fit:contain;border-radius:6px}
+.inv-logo-fallback{background:linear-gradient(135deg,#E1F5EE,#b2dfc9);color:#085041;border-radius:10px;padding:10px 14px;font-size:19px;font-weight:800;min-width:55px;text-align:center;letter-spacing:1px}
+.inv-co-name{font-size:15px;font-weight:800;color:#0F6E56;line-height:1.3}
+.inv-co-en{font-size:12px;color:var(--text2);margin-top:2px}
+.inv-co-detail{font-size:11px;color:var(--text3);margin-top:2px;line-height:1.6}
+.inv-title-block{text-align:center;flex-shrink:0}
+.inv-title-ar{font-size:17px;font-weight:800;color:#0F6E56}
+.inv-title-en{font-size:12px;font-weight:700;color:var(--text2);border:1.5px solid #0F6E56;display:inline-block;padding:4px 16px;border-radius:6px;letter-spacing:2.5px;margin-top:5px}
+.inv-num-box{margin-top:10px;background:#f0faf5;border:1px solid #9ae6c8;border-radius:8px;padding:7px 14px;display:inline-block;text-align:center}
+.inv-num-lbl{font-size:10px;color:var(--text3);font-weight:700;letter-spacing:.5px}
+.inv-num-val{font-size:16px;font-weight:800;color:#0F6E56}
+.inv-strip{background:linear-gradient(135deg,#0a5540,#1D9E75);border-radius:9px;padding:12px 16px;display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;justify-content:space-between}
+.inv-strip-item .s-lbl{font-size:10px;color:rgba(255,255,255,.7);font-weight:700;margin-bottom:3px;letter-spacing:.5px}
+.inv-strip-item .s-val{font-size:13px;font-weight:700;color:#fff}
+.inv-parties{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+@media(max-width:500px){.inv-parties{grid-template-columns:1fr}}
+.inv-party {border:1px solid #dde5ef;border-radius:9px;padding:12px;background:#fafcff}
+.inv-party .pt{font-size:10px;font-weight:800;color:var(--text3);text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid #edf2f7;padding-bottom:6px;margin-bottom:8px}
+.inv-party .pn{font-size:14px;font-weight:700;color:var(--text);margin-bottom:3px}
+.inv-party .pd{font-size:12px;color:var(--text2);margin-top:2px}
+.inv-items-head{display:grid;background:linear-gradient(135deg,#0a5540,#1D9E75);color:#fff;padding:10px 12px;border-radius:8px 8px 0 0;font-size:11px;font-weight:700;letter-spacing:.3px;gap:4px}
+.inv-item-row{display:grid;padding:9px 12px;border-bottom:1px solid #f0f4f8;font-size:13px;align-items:center;gap:4px}
+.inv-item-row:nth-child(even){background:#f8fafc}
+.inv-item-row:last-child{border-bottom:none}
+.inv-items-wrap{border:1px solid #dde5ef;border-radius:0 0 9px 9px;margin-bottom:14px;overflow:hidden}
+.inv-bottom{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-top:14px}
+.inv-sig-area{text-align:center;min-width:150px}
+.inv-sig-img{max-width:130px;max-height:60px;object-fit:contain;display:block;margin:0 auto 6px}
+.inv-sig-line{border-top:1.5px solid #dde5ef;padding-top:6px;font-size:11px;color:var(--text3);font-weight:700;letter-spacing:.3px}
+.inv-totals-inner{min-width:240px}
+.inv-tr{display:flex;justify-content:space-between;padding:5px 10px;font-size:13px;border-bottom:1px solid #f0f4f8;color:var(--text2)}
+.inv-tr.grand{border:none;font-weight:800;font-size:16px;color:#0F6E56;background:linear-gradient(135deg,#f0faf5,#e1f5ee);border-radius:8px;padding:11px 12px;margin-top:4px}
+.inv-qr-footer{display:flex;align-items:center;justify-content:space-between;margin-top:16px;padding-top:14px;border-top:1px solid #edf2f7;flex-wrap:wrap;gap:12px}
+.inv-zatca-note{font-size:10px;color:var(--text3);flex:1;text-align:center;line-height:1.7}
+.inv-footer-txt{font-size:11px;color:var(--text2);margin-top:12px;text-align:center;border-top:1px solid #edf2f7;padding-top:10px;line-height:1.8;background:#fafcff;border-radius:0 0 10px 10px;margin:-22px;padding:14px 22px;margin-top:14px}
+
+/* OVERLAY */
+.overlay{display:none;position:fixed;inset:0;background:rgba(10,20,40,.65);z-index:200;align-items:flex-start;justify-content:center;padding:16px;overflow-y:auto}
+.overlay.open{display:flex}
+.modal{background:var(--card);border-radius:14px;width:100%;max-width:740px;max-height:94vh;overflow-y:auto;padding:22px;box-shadow:0 24px 80px rgba(0,0,0,.35);margin:auto}
+.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid var(--border)}
+.modal-head h2{font-size:16px;font-weight:700;display:flex;align-items:center;gap:8px}
+.close-btn{background:var(--bg);border:1px solid var(--border);font-size:17px;cursor:pointer;color:var(--text2);padding:5px 11px;border-radius:8px;line-height:1}
+.close-btn:hover{background:var(--border)}
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:99}
+
+@media(max-width:640px){
+  .sidebar{position:fixed;top:0;right:-240px;height:100%;z-index:100;transition:right .28s;box-shadow:-4px 0 20px rgba(0,0,0,.2)}
+  .sidebar.open{right:0}
+  .sidebar-overlay.open{display:block}
+  .content{padding:12px}
+  .inv-parties{grid-template-columns:1fr}
+  .inv-header{flex-direction:column;align-items:center;text-align:center}
+  .inv-strip{flex-direction:column;gap:10px}
+}
+@media(min-width:641px){.menu-btn{display:none}}
+
+/* إعدادات الطباعة النظيفة للنافذة المنفصلة */
+@media print{
+  body { background: #fff; color: #000; padding: 0; margin: 0; }
+  .topnav, .sidebar, .sidebar-overlay, .content, #global-loader, .modal-head, .no-print, .btn, .close-btn { display:none!important }
+  .overlay { display:block!important; position:static!important; background:none!important; padding:0!important; overflow:visible!important }
+  .modal { box-shadow:none!important; border-radius:0!important; max-height:none!important; padding:0!important; width:100%!important; max-width:100%!important; overflow:visible!important }
+  * { -webkit-print-color-adjust:exact!important; print-color-adjust:exact!important }
+  .inv-item-row, .inv-header, .inv-strip, .inv-parties, .inv-bottom, .inv-totals-inner, .inv-qr-footer, .inv-items-head { page-break-inside:avoid!important; break-inside:avoid!important }
+  @page { margin:12mm 14mm; size:A4 }
+}
+
+.search-bar{display:flex;gap:8px;margin-bottom:14px}
+.search-bar input{flex:1}
+.empty-state{text-align:center;padding:50px;color:var(--text3)}
+.empty-state .ico{font-size:44px;margin-bottom:10px}
+.divider{height:1px;background:var(--border);margin:14px 0}
+</style>
+</head>
+<body>
+<div class="app">
+<div class="topnav">
+  <button class="menu-btn" onclick="toggleSidebar()">☰</button>
+  <span style="font-size:19px">📋</span>
+  <h1 id="app-title">نظام الفواتير وعروض الأسعار — ZATCA</h1>
+  <span id="sync-status" style="font-size:11px;opacity:.6;transition:opacity 1s;white-space:nowrap"></span>
+  <button onclick="toggleLang()" id="lang-btn" style="background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.4);color:#fff;padding:5px 12px;border-radius:20px;cursor:pointer;font-size:13px;font-weight:600;white-space:nowrap">EN</button>
+  <span id="sb-indicator" style="width:8px;height:8px;border-radius:50%;background:#a0aec0;flex-shrink:0" title="حالة Supabase"></span>
+</div>
+ 
+<div id="global-loader" style="display:none;position:fixed;inset:0;background:rgba(255,255,255,.85);z-index:999;flex-direction:column;align-items:center;justify-content:center;gap:14px">
+  <div style="width:44px;height:44px;border:4px solid #e2e8f0;border-top-color:#1D9E75;border-radius:50%;animation:spin 1s linear infinite"></div>
+  <div style="font-size:14px;color:#0F6E56;font-weight:600">جاري تحميل البيانات...</div>
+</div>
+<style>@keyframes spin{to{transform:rotate(360deg)}}</style>
+<div class="sidebar-overlay" id="sb-overlay" onclick="toggleSidebar()"></div>
+<div class="layout">
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-brand-name">📊 لوحة التحكم</div>
+      <div class="sidebar-brand-sub">متوافق مع زاتكا • v2.0</div>
+    </div>
+    <div class="sidebar-label">الرئيسية</div>
+    <div class="sidebar-item active" onclick="nav('dashboard')"><span class="sidebar-ico">🏠</span> الرئيسية</div>
+    <div class="sidebar-sep"></div>
+    <div class="sidebar-label">المستندات</div>
+    <div class="sidebar-item" onclick="nav('invoices')"><span class="sidebar-ico">🧾</span> الفواتير</div>
+    <div class="sidebar-item" onclick="nav('quotations')"><span class="sidebar-ico">📄</span> عروض الأسعار</div>
+    <div class="sidebar-item" onclick="nav('customers')"><span class="sidebar-ico">👥</span> العملاء</div>
+    <div class="sidebar-sep"></div>
+    <div class="sidebar-label">الإعدادات</div>
+    <div class="sidebar-item" onclick="nav('companies')"><span class="sidebar-ico">🏢</span> الشركات</div>
+    <div class="sidebar-item" onclick="nav('backup')"><span class="sidebar-ico">💾</span> النسخ الاحتياطي</div>
+    <div class="sidebar-item" onclick="nav('settings')"><span class="sidebar-ico">☁️</span> مزامنة Supabase</div>
+  </div>
+ 
+  <div class="content">
+    <div class="page active" id="page-dashboard">
+      <div class="page-header"><h2>🏠 الرئيسية</h2><p>نظرة عامة على نشاطك التجاري</p></div>
+      <div class="stat-grid" id="stats-grid"></div>
+      <div class="card">
+        <div class="card-title">⚡ إجراءات سريعة</div>
+        <div class="btn-row" style="margin-top:0">
+          <button class="btn primary" onclick="openNew('invoice')">🧾 فاتورة جديدة</button>
+          <button class="btn secondary" onclick="openNew('quotation')">📄 عرض سعر جديد</button>
+          <button class="btn" onclick="nav('customers')">👤 إضافة عميل</button>
+          <button class="btn" onclick="nav('companies')">🏢 إدارة الشركات</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">🕐 آخر المستندات</div>
+        <div class="tbl-wrap"><table class="lst">
+          <thead><tr><th>رقم</th><th>النوع</th><th>العميل</th><th>التاريخ</th><th>المبلغ</th><th>إجراء</th></tr></thead>
+          <tbody id="recent-body"></tbody>
+        </table></div>
+      </div>
+    </div>
+    <div class="page" id="page-invoices">
+      <div class="page-header"><h2>🧾 الفواتير الضريبية</h2></div>
+      <div class="btn-row no-print" style="margin-bottom:14px;margin-top:0"><button class="btn primary" onclick="openNew('invoice')">+ فاتورة جديدة</button></div>
+      <div class="search-bar"><input type="text" placeholder="🔍 بحث برقم الفاتورة أو اسم العميل..." id="inv-search" oninput="renderInvoiceList()"></div>
+      <div class="card" style="padding:0;overflow:hidden">
+        <div class="tbl-wrap"><table class="lst">
+          <thead><tr><th>#</th><th>رقم الفاتورة</th><th>العميل</th><th>التاريخ</th><th>الإجمالي</th><th>الشركة</th><th>إجراءات</th></tr></thead>
+          <tbody id="inv-body"></tbody>
+        </table></div>
+        <div id="inv-empty" class="empty-state" style="display:none"><div class="ico">🧾</div><p>لا توجد فواتير بعد</p></div>
+      </div>
+    </div>
+    <div class="page" id="page-quotations">
+      <div class="page-header"><h2>📄 عروض الأسعار</h2></div>
+      <div class="btn-row no-print" style="margin-bottom:14px;margin-top:0"><button class="btn primary" onclick="openNew('quotation')">+ عرض سعر جديد</button></div>
+      <div class="search-bar"><input type="text" placeholder="🔍 بحث برقم العرض أو اسم العميل..." id="quo-search" oninput="renderQuotationList()"></div>
+      <div class="card" style="padding:0;overflow:hidden">
+        <div class="tbl-wrap"><table class="lst">
+          <thead><tr><th>#</th><th>رقم العرض</th><th>العميل</th><th>التاريخ</th><th>الإجمالي</th><th>الشركة</th><th>إجراءات</th></tr></thead>
+          <tbody id="quo-body"></tbody>
+        </table></div>
+        <div id="quo-empty" class="empty-state" style="display:none"><div class="ico">📄</div><p>لا توجد عروض أسعار بعد</p></div>
+      </div>
+    </div>
+    <div class="page" id="page-customers">
+      <div class="page-header"><h2>👥 العملاء</h2></div>
+      <div class="btn-row no-print" style="margin-bottom:14px;margin-top:0"><button class="btn primary" onclick="openCustomerForm()">+ إضافة عميل</button></div>
+      <div class="card" style="padding:0;overflow:hidden">
+        <div class="tbl-wrap"><table class="lst">
+          <thead><tr><th>اسم العميل</th><th>الرقم الضريبي</th><th>الهاتف</th><th>العنوان</th><th>إجراءات</th></tr></thead>
+          <tbody id="cust-body"></tbody>
+        </table></div>
+        <div id="cust-empty" class="empty-state" style="display:none"><div class="ico">👥</div><p>لا يوجد عملاء</p></div>
+      </div>
+    </div>
+    <div class="page" id="page-companies">
+      <div class="page-header"><h2>🏢 الشركات</h2><p>أضف شعار الشركة وتوقيعها المعتمد</p></div>
+      <div class="btn-row no-print" style="margin-bottom:14px;margin-top:0"><button class="btn primary" onclick="openCompanyForm()">+ إضافة شركة</button></div>
+      <div id="co-cards"></div>
+    </div>
+ 
+    <div class="page" id="page-backup">
+      <div class="page-header"><h2>💾 النسخ الاحتياطي</h2><p>حافظ على بياناتك وانقلها بين الجوال والكمبيوتر بسهولة</p></div>
+ 
+      <div class="card" style="border-right:4px solid var(--green-dark)">
+        <div class="card-title">📤 تصدير البيانات</div>
+        <p style="font-size:13px;color:var(--text2);margin-bottom:14px;line-height:1.7">احفظ جميع بياناتك (فواتير، عروض أسعار، عملاء، شركات) في ملف واحد. أرسله لنفسك على واتساب أو احفظه في Google Drive لاستخدامه على جهاز آخر.</p>
+        <div class="btn-row" style="margin-top:0">
+          <button class="btn primary" onclick="exportBackup()">📥 تحميل نسخة احتياطية</button>
+        </div>
+        <div id="backup-stats" style="margin-top:14px;padding:12px;background:#f8fafc;border-radius:9px;font-size:13px;color:var(--text2);display:grid;grid-template-columns:1fr 1fr;gap:8px"></div>
+      </div>
+ 
+      <div class="card" style="border-right:4px solid var(--blue)">
+        <div class="card-title">📂 استيراد البيانات</div>
+        <p style="font-size:13px;color:var(--text2);margin-bottom:14px;line-height:1.7">استورد ملف النسخة الاحتياطية لاستعادة بياناتك أو نقلها من جهاز لآخر. <strong style="color:var(--red)">تنبيه: سيستبدل البيانات الحالية.</strong></p>
+        <div class="img-upload-box" onclick="document.getElementById('import-file').click()" style="border-color:var(--blue);max-width:340px">
+          <input type="file" id="import-file" accept=".json" onchange="importBackup(this)">
+          <div style="font-size:24px;margin-bottom:6px">📂</div>
+          <div style="font-size:14px;color:var(--text2);font-weight:600">اضغط لاختيار ملف النسخة الاحتياطية</div>
+          <div style="font-size:11px;color:var(--text3);margin-top:4px">ملف بصيغة .json</div>
+        </div>
+      </div>
+ 
+      <div class="card" style="border-right:4px solid #4285F4">
+        <div class="card-title">☁️ المزامنة مع Google Drive <span style="font-size:11px;background:#E8F0FE;color:#4285F4;padding:2px 8px;border-radius:10px;margin-right:6px">تلقائي</span></div>
+        <p style="font-size:13px;color:var(--text2);margin-bottom:14px;line-height:1.8">احفظ بياناتك على Google Drive ليكون متاحاً من أي جهاز تلقائياً. تحتاج إدخال Client ID من Google Cloud مرة واحدة فقط.</p>
+ 
+        <div id="gdrive-setup" style="display:none">
+          <div class="fg" style="margin-bottom:10px">
+            <label>Google Client ID</label>
+            <input type="text" id="gdrive-client-id" placeholder="XXXXXXXXXX.apps.googleusercontent.com" style="direction:ltr;font-size:12px">
+          </div>
+          <button class="btn sm primary" onclick="saveGdriveClientId()">💾 حفظ وتفعيل</button>
+          <div style="margin-top:12px;padding:10px;background:#E8F0FE;border-radius:8px;font-size:12px;color:#4285F4;line-height:1.8">
+            <strong>كيف تحصل على Client ID؟</strong><br>
+            1. افتح <a href="https://console.cloud.google.com" target="_blank" style="color:#4285F4">console.cloud.google.com</a><br>
+            2. أنشئ مشروعاً جديداً → APIs → Drive API → فعّله<br>
+            3. Credentials → Create OAuth 2.0 → Web App<br>
+            4. أضف نطاق موقعك في Authorized Origins<br>
+            5. انسخ Client ID والصقه هنا
+          </div>
+        </div>
+ 
+        <div id="gdrive-connected" style="display:none">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;padding:10px;background:#E6F4EA;border-radius:8px">
+            <span style="font-size:20px">✅</span>
+            <div>
+              <div style="font-size:13px;font-weight:700;color:#0F6E56">متصل بـ Google Drive</div>
+              <div id="gdrive-user" style="font-size:12px;color:var(--text2)"></div>
+            </div>
+            <button class="btn sm danger" onclick="gdriveSignOut()" style="margin-right:auto">تسجيل خروج</button>
+          </div>
+          <div class="btn-row" style="margin-top:0">
+            <button class="btn primary" onclick="gdriveSave()">☁️ رفع للـ Drive</button>
+            <button class="btn secondary" onclick="gdriveLoad()">📥 تحميل من Drive</button>
+          </div>
+          <div id="gdrive-status" style="margin-top:10px;font-size:12px;color:var(--text2)"></div>
+        </div>
+ 
+        <div id="gdrive-signin" style="display:block">
+          <div class="btn-row" style="margin-top:0">
+            <button class="btn" onclick="gdriveSignIn()" style="background:#4285F4;color:#fff;border-color:#3367D6;gap:8px">
+              <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#fff" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#fff" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#fff" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#fff" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+              تسجيل الدخول بـ Google
+            </button>
+            <button class="btn sm" onclick="document.getElementById('gdrive-setup').style.display=document.getElementById('gdrive-setup').style.display==='none'?'block':'none'">⚙️ إعداد Client ID</button>
+          </div>
+        </div>
+      </div>
+ 
+      <div class="card" style="border-right:4px solid var(--amber)">
+        <div class="card-title">💡 طريقة المزامنة اليدوية (بدون إنترنت)</div>
+        <div style="font-size:13px;color:var(--text2);line-height:2.2">
+          <div>1️⃣ على الجهاز الأول: اضغط <strong>"تحميل نسخة احتياطية"</strong></div>
+          <div>2️⃣ أرسل الملف لنفسك عبر <strong>📲 واتساب أو تيليجرام</strong></div>
+          <div>3️⃣ على الجهاز الثاني: اضغط <strong>"استيراد"</strong> واختر الملف</div>
+          <div>4️⃣ 🎉 بياناتك متزامنة الآن!</div>
+        </div>
+      </div>
+    </div>
+ 
+    <div class="page" id="page-settings">
+      <div class="page-header"><h2>☁️ مزامنة Supabase</h2><p>بياناتك على السحابة — تفتح من أي جهاز تلقائياً</p></div>
+ 
+      <div id="sb-status-card" class="card" style="border-right:4px solid #3ECF8E"></div>
+ 
+      <div class="card">
+        <div class="card-title">🔧 إعداد الاتصال</div>
+        <div style="background:#f0faf5;border-radius:10px;padding:14px;margin-bottom:16px;font-size:13px;color:#0F6E56;line-height:2.2;border:1px solid #9ae6c8">
+          <strong>📋 خطوات الإعداد (مرة واحدة فقط):</strong><br>
+          1️⃣ افتح <a href="https://supabase.com" target="_blank" style="color:#0F6E56;font-weight:700">supabase.com</a> وأنشئ حساباً مجانياً<br>
+          2️⃣ أنشئ مشروعاً جديداً (New Project)<br>
+          3️⃣ انتظر دقيقة حتى يجهز، ثم اذهب إلى <strong>Settings → API</strong><br>
+          4️⃣ انسخ <strong>Project URL</strong> و <strong>anon public key</strong><br>
+          5️⃣ الصقهم in الحقول أدناه واضغط <strong>"حفظ وتفعيل"</strong>
+        </div>
+        <div class="fg" style="margin-bottom:12px">
+          <label>🔗 Project URL</label>
+          <input type="text" id="sb-url-inp" placeholder="https://xxxxxxxxxxxx.supabase.co" style="direction:ltr;font-size:13px">
+        </div>
+        <div class="fg" style="margin-bottom:16px">
+          <label>🔑 anon public key</label>
+          <input type="text" id="sb-key-inp" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." style="direction:ltr;font-size:12px">
+        </div>
+        <div class="btn-row" style="margin-top:0">
+          <button class="btn primary" onclick="saveSbConfig()">✅ حفظ وتفعيل المزامنة</button>
+          <button class="btn danger" onclick="clearSbConfig()" id="sb-clear-btn" style="display:none">🗑 إزالة الإعدادات</button>
+        </div>
+        <div id="sb-test-result" style="margin-top:12px;font-size:13px"></div>
+      </div>
+ 
+      <div class="card" style="border-right:4px solid var(--blue)">
+        <div class="card-title">📋 كود إنشاء الجداول (مرة واحدة)</div>
+        <p style="font-size:13px;color:var(--text2);margin-bottom:12px">في Supabase افتح <strong>SQL Editor</strong> والصق هذا الكود ثم اضغط <strong>Run</strong>:</p>
+        <div id="sql-code" style="background:#1a202c;color:#68d391;border-radius:10px;padding:14px;font-family:monospace;font-size:12px;direction:ltr;line-height:1.9;overflow-x:auto;user-select:all">
+create table if not exists co (id serial primary key, payload text);
+create table if not exists cu (id serial primary key, payload text);
+create table if not exists doc (id serial primary key, payload text);
+alter table co enable row level security;
+alter table cu enable row level security;
+alter table doc enable row level security;
+create policy "all" on co for all using (true) with check (true);
+create policy "all" on cu for all using (true) with check (true);
+create policy "all" on doc for all using (true) with check (true);</div>
+        <button class="btn sm" style="margin-top:10px" onclick="navigator.clipboard.writeText(document.getElementById('sql-code').innerText);this.textContent='✅ تم النسخ!'">📋 نسخ الكود</button>
+      </div>
+    </div>
+ 
+  </div>
+</div>
+</div> <div class="overlay" id="doc-modal">
+<div class="modal">
+  <div class="modal-head">
+    <h2 id="doc-modal-title">🧾 فاتورة جديدة</h2>
+    <button class="close-btn" onclick="closeModal('doc-modal')">✕</button>
+  </div>
+  <div class="form-grid two" style="margin-bottom:11px">
+    <div class="fg"><label>🏢 الشركة</label><select id="f-company"></select></div>
+    <div class="fg"><label>📋 النوع</label><select id="f-type" onchange="onTypeChange()"><option value="invoice">🧾 فاتورة ضريبية</option><option value="quotation">📄 عرض سعر</option></select></div>
+  </div>
+  <div class="form-grid two" style="margin-bottom:11px">
+    <div class="fg"><label>رقم المستند</label><input type="text" id="f-num"></div>
+    <div class="fg"><label>📅 التاريخ</label><input type="date" id="f-date"></div>
+  </div>
+  <div class="form-grid two" style="margin-bottom:11px">
+    <div class="fg"><label>📅 تاريخ الاستحقاق</label><input type="date" id="f-due"></div>
+    <div class="fg"><label>👤 اختر عميلاً</label><select id="f-customer" onchange="fillCustomerData()"><option value="">-- اختر --</option></select></div>
+  </div>
+  <div class="form-grid two" style="margin-bottom:11px">
+    <div class="fg"><label>اسم العميل</label><input type="text" id="f-cust-name" placeholder="أو أدخل مباشرة"></div>
+    <div class="fg"><label>الرقم الضريبي للعميل</label><input type="text" id="f-cust-vat" placeholder="300..."></div>
+  </div>
+  <div class="fg" style="margin-bottom:14px"><label>عنوان العميل</label><input type="text" id="f-cust-addr" placeholder="المدينة، الحي..."></div>
+  <div class="divider"></div>
+  <div class="card-title" style="margin:0 0 10px">📦 البنود</div>
+  <div class="items-wrap">
+  <table class="items">
+    <thead><tr><th style="width:36%">الوصف</th><th style="width:10%">الكمية</th><th style="width:16%">سعر الوحدة</th><th style="width:14%">المبلغ الخاضع</th><th style="width:11%">ضريبة 15%</th><th style="width:11%">الإجمالي</th><th style="width:4%"></th></tr></thead>
+    <tbody id="items-body"></tbody>
+  </table>
+  </div>
+  <button class="btn sm" style="margin-top:8px" onclick="addItem()">+ بند جديد</button>
+</div>
+</div>
+
+</body>
+</html>
