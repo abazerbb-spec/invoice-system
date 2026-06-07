@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>نظام الفواتير وعروض الأسعار</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -18,16 +19,17 @@ body{font-family:'Segoe UI',Tahoma,Arial,sans-serif;background:var(--bg);color:v
 .app{display:flex;flex-direction:column;min-height:100vh}
 .topnav{background:linear-gradient(135deg,#0a5540 0%,#1D9E75 100%);color:#fff;padding:0 16px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:100;height:54px;box-shadow:0 2px 12px rgba(10,85,64,.4)}
 .topnav h1{font-size:15px;font-weight:600;flex:1}
-.menu-btn{background:none;border:none;color:#fff;font-size:24px;cursor:pointer;padding:4px;line-height:1}
-.layout{display:flex;flex:1}
-.sidebar{width:226px;background:var(--card);border-left:1px solid var(--border);padding:14px 0;flex-shrink:0}
+.menu-btn{background:none;border:none;color:#fff;font-size:20px;cursor:pointer;padding:4px;line-height:1;display:block}
+.layout{display:flex;flex:1;position:relative}
+.sidebar{width:240px;background:var(--card);border-left:1px solid var(--border);padding:14px 0;flex-shrink:0;transition:right .28s}
 .sidebar-brand{padding:0 14px 14px;border-bottom:1px solid var(--border);margin-bottom:6px}
-.sidebar-brand-name{font-size:13px;font-weight:700;color:var(--green-dark)}
+.sidebar-brand-name{font-size:14px;font-weight:700;color:var(--green-dark)}
 .sidebar-brand-sub{font-size:11px;color:var(--text3);margin-top:2px}
-.sidebar-item{display:flex;align-items:center;gap:9px;padding:9px 14px;cursor:pointer;font-size:14px;color:var(--text2);border-right:3px solid transparent;transition:all .15s;margin:2px 8px;border-radius:8px}
+.sidebar-item{display:flex;align-items:center;gap:10px;padding:10px 14px;cursor:pointer;font-size:14px;color:var(--text2);border-right:3px solid transparent;transition:all .15s;margin:2px 8px;border-radius:8px}
 .sidebar-item:hover{background:var(--green-light);color:var(--green-dark)}
 .sidebar-item.active{background:var(--green-light);color:var(--green-dark);border-right-color:var(--green);font-weight:600}
-.sidebar-ico{font-size:16px;width:20px;text-align:center}
+.sidebar-ico{font-size:15px;width:20px;text-align:center;color:var(--text2)}
+.sidebar-item.active .sidebar-ico{color:var(--green-dark)}
 .sidebar-sep{height:1px;background:var(--border);margin:8px 0}
 .sidebar-label{font-size:10px;color:var(--text3);padding:6px 14px 3px;text-transform:uppercase;letter-spacing:1px;font-weight:700}
 .content{flex:1;padding:18px;overflow-x:hidden}
@@ -41,7 +43,7 @@ body{font-family:'Segoe UI',Tahoma,Arial,sans-serif;background:var(--bg);color:v
 @media(min-width:640px){.stat-grid{grid-template-columns:repeat(4,1fr)}}
 .stat{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center;position:relative;overflow:hidden}
 .stat::before{content:'';position:absolute;top:0;right:0;left:0;height:3px;background:linear-gradient(90deg,#0F6E56,#1D9E75)}
-.stat-ico{font-size:22px;margin-bottom:7px}
+.stat-ico{font-size:22px;margin-bottom:7px;color:var(--green)}
 .stat-num{font-size:22px;font-weight:700;color:var(--green-dark)}
 .stat-lbl{font-size:11px;color:var(--text2);margin-top:3px}
 .form-grid{display:grid;grid-template-columns:1fr;gap:11px}
@@ -79,11 +81,10 @@ table.items td{padding:6px 6px;border-bottom:1px solid #f0f4f8}
 table.items tr:last-child td{border-bottom:none}
 table.items tr:nth-child(even) td{background:#f8fafc}
 table.items input{padding:5px 7px;font-size:13px;border-radius:6px}
-.del-btn{background:none;border:none;color:var(--red);cursor:pointer;font-size:17px;padding:3px}
+.del-btn{background:none;border:none;color:var(--red);cursor:pointer;font-size:15px;padding:3px}
 .totals-box{margin-top:14px;background:linear-gradient(135deg,#f8fafc,#f0f5f0);border-radius:10px;padding:14px;border:1px solid #d1e8d8}
 .totals-row{display:flex;justify-content:space-between;padding:5px 0;font-size:14px;border-bottom:1px solid #e2e8f0;color:var(--text2)}
 .totals-row:last-child{border:none;font-weight:700;font-size:16px;color:var(--green-dark);padding-top:10px}
-
 /* ---- INVOICE DOC ---- */
 .inv-doc{background:#fff;max-width:860px;margin:0 auto;font-size:13px;font-family:'Segoe UI',Tahoma,Arial,sans-serif;border-radius:10px;overflow:hidden}
 .inv-topbar{background:linear-gradient(90deg,#0a5540,#1D9E75,#0a5540);height:7px}
@@ -125,7 +126,6 @@ table.items input{padding:5px 7px;font-size:13px;border-radius:6px}
 .inv-qr-footer{display:flex;align-items:center;justify-content:space-between;margin-top:16px;padding-top:14px;border-top:1px solid #edf2f7;flex-wrap:wrap;gap:12px}
 .inv-zatca-note{font-size:10px;color:var(--text3);flex:1;text-align:center;line-height:1.7}
 .inv-footer-txt{font-size:11px;color:var(--text2);margin-top:12px;text-align:center;border-top:1px solid #edf2f7;padding-top:10px;line-height:1.8;background:#fafcff;border-radius:0 0 10px 10px;margin:-22px;padding:14px 22px;margin-top:14px}
-
 /* OVERLAY */
 .overlay{display:none;position:fixed;inset:0;background:rgba(10,20,40,.65);z-index:200;align-items:flex-start;justify-content:center;padding:16px;overflow-y:auto}
 .overlay.open{display:flex}
@@ -136,28 +136,50 @@ table.items input{padding:5px 7px;font-size:13px;border-radius:6px}
 .close-btn:hover{background:var(--border)}
 .sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:99}
 
-@media(max-width:640px){
-  .sidebar{position:fixed;top:0;right:-240px;height:100%;z-index:100;transition:right .28s;box-shadow:-4px 0 20px rgba(0,0,0,.2)}
+@media(max-width:991px){
+  .sidebar{position:fixed;top:0;right:-250px;height:100%;z-index:101;box-shadow:-4px 0 20px rgba(0,0,0,.2)}
   .sidebar.open{right:0}
   .sidebar-overlay.open{display:block}
   .content{padding:12px}
-  .inv-parties{grid-template-columns:1fr}
-  .inv-header{flex-direction:column;align-items:center;text-align:center}
-  .inv-strip{flex-direction:column;gap:10px}
 }
-@media(min-width:641px){.menu-btn{display:none}}
-
-/* إعدادات الطباعة النظيفة للنافذة المنفصلة */
+@media(min-width:992px){
+  .menu-btn{display:none}
+}
 @media print{
-  body { background: #fff; color: #000; padding: 0; margin: 0; }
-  .topnav, .sidebar, .sidebar-overlay, .content, #global-loader, .modal-head, .no-print, .btn, .close-btn { display:none!important }
-  .overlay { display:block!important; position:static!important; background:none!important; padding:0!important; overflow:visible!important }
-  .modal { box-shadow:none!important; border-radius:0!important; max-height:none!important; padding:0!important; width:100%!important; max-width:100%!important; overflow:visible!important }
+  body[data-printing] .topnav,
+  body[data-printing] .sidebar,
+  body[data-printing] .sidebar-overlay,
+  body[data-printing] .layout,
+  body[data-printing] .content,
+  body[data-printing] #global-loader,
+  body[data-printing] .modal-head,
+  body[data-printing] .no-print { display:none!important }
+  body[data-printing] .overlay {
+    display:block!important;
+    position:static!important;
+    background:none!important;
+    padding:0!important;
+    overflow:visible!important;
+  }
+  body[data-printing] .modal {
+    box-shadow:none!important;
+    border-radius:0!important;
+    max-height:none!important;
+    padding:0!important;
+    width:100%!important;
+    max-width:100%!important;
+    overflow:visible!important;
+  }
+  body[data-printing] #doc-preview {
+    display:block!important;
+  }
   * { -webkit-print-color-adjust:exact!important; print-color-adjust:exact!important }
-  .inv-item-row, .inv-header, .inv-strip, .inv-parties, .inv-bottom, .inv-totals-inner, .inv-qr-footer, .inv-items-head { page-break-inside:avoid!important; break-inside:avoid!important }
+  .inv-item-row { page-break-inside:avoid!important; break-inside:avoid!important }
+  .inv-header,.inv-strip,.inv-parties,
+  .inv-bottom,.inv-totals-inner,.inv-qr-footer,
+  .inv-items-head { page-break-inside:avoid!important; break-inside:avoid!important }
   @page { margin:12mm 14mm; size:A4 }
 }
-
 .search-bar{display:flex;gap:8px;margin-bottom:14px}
 .search-bar input{flex:1}
 .empty-state{text-align:center;padding:50px;color:var(--text3)}
@@ -168,9 +190,9 @@ table.items input{padding:5px 7px;font-size:13px;border-radius:6px}
 <body>
 <div class="app">
 <div class="topnav">
-  <button class="menu-btn" onclick="toggleSidebar()">☰</button>
-  <span style="font-size:19px">📋</span>
-  <h1 id="app-title">نظام الفواتير وعروض الأسعار — ZATCA</h1>
+  <button class="menu-btn" onclick="toggleSidebar(true)"><i class="fa-solid fa-bars"></i></button>
+  <span style="font-size:18px; color:#fff;"><i class="fa-solid fa-file-invoice-dollar"></i></span>
+  <h1 id="app-title" style="margin-right:6px">نظام الفواتير وعروض الأسعار — ZATCA</h1>
   <span id="sync-status" style="font-size:11px;opacity:.6;transition:opacity 1s;white-space:nowrap"></span>
   <button onclick="toggleLang()" id="lang-btn" style="background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.4);color:#fff;padding:5px 12px;border-radius:20px;cursor:pointer;font-size:13px;font-weight:600;white-space:nowrap">EN</button>
   <span id="sb-indicator" style="width:8px;height:8px;border-radius:50%;background:#a0aec0;flex-shrink:0" title="حالة Supabase"></span>
@@ -181,42 +203,42 @@ table.items input{padding:5px 7px;font-size:13px;border-radius:6px}
   <div style="font-size:14px;color:#0F6E56;font-weight:600">جاري تحميل البيانات...</div>
 </div>
 <style>@keyframes spin{to{transform:rotate(360deg)}}</style>
-<div class="sidebar-overlay" id="sb-overlay" onclick="toggleSidebar()"></div>
+<div class="sidebar-overlay" id="sb-overlay" onclick="toggleSidebar(false)"></div>
 <div class="layout">
   <div class="sidebar" id="sidebar">
     <div class="sidebar-brand">
-      <div class="sidebar-brand-name">📊 لوحة التحكم</div>
+      <div class="sidebar-brand-name"><i class="fa-solid fa-chart-pie"></i> لوحة التحكم</div>
       <div class="sidebar-brand-sub">متوافق مع زاتكا • v2.0</div>
     </div>
     <div class="sidebar-label">الرئيسية</div>
-    <div class="sidebar-item active" onclick="nav('dashboard')"><span class="sidebar-ico">🏠</span> الرئيسية</div>
+    <div class="sidebar-item active" onclick="nav('dashboard')"><span class="sidebar-ico"><i class="fa-solid fa-house"></i></span> الرئيسية</div>
     <div class="sidebar-sep"></div>
     <div class="sidebar-label">المستندات</div>
-    <div class="sidebar-item" onclick="nav('invoices')"><span class="sidebar-ico">🧾</span> الفواتير</div>
-    <div class="sidebar-item" onclick="nav('quotations')"><span class="sidebar-ico">📄</span> عروض الأسعار</div>
-    <div class="sidebar-item" onclick="nav('customers')"><span class="sidebar-ico">👥</span> العملاء</div>
+    <div class="sidebar-item" onclick="nav('invoices')"><span class="sidebar-ico"><i class="fa-solid fa-file-invoice"></i></span> الفواتير</div>
+    <div class="sidebar-item" onclick="nav('quotations')"><span class="sidebar-ico"><i class="fa-solid fa-file-lines"></i></span> عروض الأسعار</div>
+    <div class="sidebar-item" onclick="nav('customers')"><span class="sidebar-ico"><i class="fa-solid fa-users"></i></span> العملاء</div>
     <div class="sidebar-sep"></div>
     <div class="sidebar-label">الإعدادات</div>
-    <div class="sidebar-item" onclick="nav('companies')"><span class="sidebar-ico">🏢</span> الشركات</div>
-    <div class="sidebar-item" onclick="nav('backup')"><span class="sidebar-ico">💾</span> النسخ الاحتياطي</div>
-    <div class="sidebar-item" onclick="nav('settings')"><span class="sidebar-ico">☁️</span> مزامنة Supabase</div>
+    <div class="sidebar-item" onclick="nav('companies')"><span class="sidebar-ico"><i class="fa-solid fa-building"></i></span> الشركات</div>
+    <div class="sidebar-item" onclick="nav('backup')"><span class="sidebar-ico"><i class="fa-solid fa-database"></i></span> النسخ الاحتياطي</div>
+    <div class="sidebar-item" onclick="nav('settings')"><span class="sidebar-ico"><i class="fa-solid fa-cloud"></i></span> مزامنة Supabase</div>
   </div>
  
   <div class="content">
     <div class="page active" id="page-dashboard">
-      <div class="page-header"><h2>🏠 الرئيسية</h2><p>نظرة عامة على نشاطك التجاري</p></div>
+      <div class="page-header"><h2><i class="fa-solid fa-house" style="color:var(--green)"></i> الرئيسية</h2><p>نظرة عامة على نشاطك التجاري</p></div>
       <div class="stat-grid" id="stats-grid"></div>
       <div class="card">
-        <div class="card-title">⚡ إجراءات سريعة</div>
+        <div class="card-title"><i class="fa-solid fa-bolt" style="color:var(--amber)"></i> إجراءات سريعة</div>
         <div class="btn-row" style="margin-top:0">
-          <button class="btn primary" onclick="openNew('invoice')">🧾 فاتورة جديدة</button>
-          <button class="btn secondary" onclick="openNew('quotation')">📄 عرض سعر جديد</button>
-          <button class="btn" onclick="nav('customers')">👤 إضافة عميل</button>
-          <button class="btn" onclick="nav('companies')">🏢 إدارة الشركات</button>
+          <button class="btn primary" onclick="openNew('invoice')"><i class="fa-solid fa-file-invoice"></i> فاتورة جديدة</button>
+          <button class="btn secondary" onclick="openNew('quotation')"><i class="fa-solid fa-file-lines"></i> عرض سعر جديد</button>
+          <button class="btn" onclick="nav('customers')"><i class="fa-solid fa-user-plus"></i> إضافة عميل</button>
+          <button class="btn" onclick="nav('companies')"><i class="fa-solid fa-building"></i> إدارة الشركات</button>
         </div>
       </div>
       <div class="card">
-        <div class="card-title">🕐 آخر المستندات</div>
+        <div class="card-title"><i class="fa-solid fa-clock" style="color:var(--blue)"></i> آخر المستندات</div>
         <div class="tbl-wrap"><table class="lst">
           <thead><tr><th>رقم</th><th>النوع</th><th>العميل</th><th>التاريخ</th><th>المبلغ</th><th>إجراء</th></tr></thead>
           <tbody id="recent-body"></tbody>
@@ -266,138 +288,44 @@ table.items input{padding:5px 7px;font-size:13px;border-radius:6px}
  
     <div class="page" id="page-backup">
       <div class="page-header"><h2>💾 النسخ الاحتياطي</h2><p>حافظ على بياناتك وانقلها بين الجوال والكمبيوتر بسهولة</p></div>
- 
       <div class="card" style="border-right:4px solid var(--green-dark)">
         <div class="card-title">📤 تصدير البيانات</div>
-        <p style="font-size:13px;color:var(--text2);margin-bottom:14px;line-height:1.7">احفظ جميع بياناتك (فواتير، عروض أسعار، عملاء، شركات) في ملف واحد. أرسله لنفسك على واتساب أو احفظه في Google Drive لاستخدامه على جهاز آخر.</p>
+        <p style="font-size:13px;color:var(--text2);margin-bottom:14px;line-height:1.7">احفظ جميع بياناتك في ملف واحد.</p>
         <div class="btn-row" style="margin-top:0">
           <button class="btn primary" onclick="exportBackup()">📥 تحميل نسخة احتياطية</button>
         </div>
         <div id="backup-stats" style="margin-top:14px;padding:12px;background:#f8fafc;border-radius:9px;font-size:13px;color:var(--text2);display:grid;grid-template-columns:1fr 1fr;gap:8px"></div>
       </div>
- 
       <div class="card" style="border-right:4px solid var(--blue)">
         <div class="card-title">📂 استيراد البيانات</div>
-        <p style="font-size:13px;color:var(--text2);margin-bottom:14px;line-height:1.7">استورد ملف النسخة الاحتياطية لاستعادة بياناتك أو نقلها من جهاز لآخر. <strong style="color:var(--red)">تنبيه: سيستبدل البيانات الحالية.</strong></p>
         <div class="img-upload-box" onclick="document.getElementById('import-file').click()" style="border-color:var(--blue);max-width:340px">
           <input type="file" id="import-file" accept=".json" onchange="importBackup(this)">
           <div style="font-size:24px;margin-bottom:6px">📂</div>
           <div style="font-size:14px;color:var(--text2);font-weight:600">اضغط لاختيار ملف النسخة الاحتياطية</div>
-          <div style="font-size:11px;color:var(--text3);margin-top:4px">ملف بصيغة .json</div>
-        </div>
-      </div>
- 
-      <div class="card" style="border-right:4px solid #4285F4">
-        <div class="card-title">☁️ المزامنة مع Google Drive <span style="font-size:11px;background:#E8F0FE;color:#4285F4;padding:2px 8px;border-radius:10px;margin-right:6px">تلقائي</span></div>
-        <p style="font-size:13px;color:var(--text2);margin-bottom:14px;line-height:1.8">احفظ بياناتك على Google Drive ليكون متاحاً من أي جهاز تلقائياً. تحتاج إدخال Client ID من Google Cloud مرة واحدة فقط.</p>
- 
-        <div id="gdrive-setup" style="display:none">
-          <div class="fg" style="margin-bottom:10px">
-            <label>Google Client ID</label>
-            <input type="text" id="gdrive-client-id" placeholder="XXXXXXXXXX.apps.googleusercontent.com" style="direction:ltr;font-size:12px">
-          </div>
-          <button class="btn sm primary" onclick="saveGdriveClientId()">💾 حفظ وتفعيل</button>
-          <div style="margin-top:12px;padding:10px;background:#E8F0FE;border-radius:8px;font-size:12px;color:#4285F4;line-height:1.8">
-            <strong>كيف تحصل على Client ID؟</strong><br>
-            1. افتح <a href="https://console.cloud.google.com" target="_blank" style="color:#4285F4">console.cloud.google.com</a><br>
-            2. أنشئ مشروعاً جديداً → APIs → Drive API → فعّله<br>
-            3. Credentials → Create OAuth 2.0 → Web App<br>
-            4. أضف نطاق موقعك في Authorized Origins<br>
-            5. انسخ Client ID والصقه هنا
-          </div>
-        </div>
- 
-        <div id="gdrive-connected" style="display:none">
-          <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;padding:10px;background:#E6F4EA;border-radius:8px">
-            <span style="font-size:20px">✅</span>
-            <div>
-              <div style="font-size:13px;font-weight:700;color:#0F6E56">متصل بـ Google Drive</div>
-              <div id="gdrive-user" style="font-size:12px;color:var(--text2)"></div>
-            </div>
-            <button class="btn sm danger" onclick="gdriveSignOut()" style="margin-right:auto">تسجيل خروج</button>
-          </div>
-          <div class="btn-row" style="margin-top:0">
-            <button class="btn primary" onclick="gdriveSave()">☁️ رفع للـ Drive</button>
-            <button class="btn secondary" onclick="gdriveLoad()">📥 تحميل من Drive</button>
-          </div>
-          <div id="gdrive-status" style="margin-top:10px;font-size:12px;color:var(--text2)"></div>
-        </div>
- 
-        <div id="gdrive-signin" style="display:block">
-          <div class="btn-row" style="margin-top:0">
-            <button class="btn" onclick="gdriveSignIn()" style="background:#4285F4;color:#fff;border-color:#3367D6;gap:8px">
-              <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#fff" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#fff" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#fff" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#fff" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
-              تسجيل الدخول بـ Google
-            </button>
-            <button class="btn sm" onclick="document.getElementById('gdrive-setup').style.display=document.getElementById('gdrive-setup').style.display==='none'?'block':'none'">⚙️ إعداد Client ID</button>
-          </div>
-        </div>
-      </div>
- 
-      <div class="card" style="border-right:4px solid var(--amber)">
-        <div class="card-title">💡 طريقة المزامنة اليدوية (بدون إنترنت)</div>
-        <div style="font-size:13px;color:var(--text2);line-height:2.2">
-          <div>1️⃣ على الجهاز الأول: اضغط <strong>"تحميل نسخة احتياطية"</strong></div>
-          <div>2️⃣ أرسل الملف لنفسك عبر <strong>📲 واتساب أو تيليجرام</strong></div>
-          <div>3️⃣ على الجهاز الثاني: اضغط <strong>"استيراد"</strong> واختر الملف</div>
-          <div>4️⃣ 🎉 بياناتك متزامنة الآن!</div>
         </div>
       </div>
     </div>
  
     <div class="page" id="page-settings">
-      <div class="page-header"><h2>☁️ مزامنة Supabase</h2><p>بياناتك على السحابة — تفتح من أي جهاز تلقائياً</p></div>
- 
+      <div class="page-header"><h2>☁️ مزامنة Supabase</h2></div>
       <div id="sb-status-card" class="card" style="border-right:4px solid #3ECF8E"></div>
- 
       <div class="card">
         <div class="card-title">🔧 إعداد الاتصال</div>
-        <div style="background:#f0faf5;border-radius:10px;padding:14px;margin-bottom:16px;font-size:13px;color:#0F6E56;line-height:2.2;border:1px solid #9ae6c8">
-          <strong>📋 خطوات الإعداد (مرة واحدة فقط):</strong><br>
-          1️⃣ افتح <a href="https://supabase.com" target="_blank" style="color:#0F6E56;font-weight:700">supabase.com</a> وأنشئ حساباً مجانياً<br>
-          2️⃣ أنشئ مشروعاً جديداً (New Project)<br>
-          3️⃣ انتظر دقيقة حتى يجهز، ثم اذهب إلى <strong>Settings → API</strong><br>
-          4️⃣ انسخ <strong>Project URL</strong> و <strong>anon public key</strong><br>
-          5️⃣ الصقهم in الحقول أدناه واضغط <strong>"حفظ وتفعيل"</strong>
-        </div>
-        <div class="fg" style="margin-bottom:12px">
-          <label>🔗 Project URL</label>
-          <input type="text" id="sb-url-inp" placeholder="https://xxxxxxxxxxxx.supabase.co" style="direction:ltr;font-size:13px">
-        </div>
-        <div class="fg" style="margin-bottom:16px">
-          <label>🔑 anon public key</label>
-          <input type="text" id="sb-key-inp" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." style="direction:ltr;font-size:12px">
-        </div>
+        <div class="fg" style="margin-bottom:12px"><label>🔗 Project URL</label><input type="text" id="sb-url-inp" style="direction:ltr"></div>
+        <div class="fg" style="margin-bottom:16px"><label>🔑 anon public key</label><input type="text" id="sb-key-inp" style="direction:ltr"></div>
         <div class="btn-row" style="margin-top:0">
           <button class="btn primary" onclick="saveSbConfig()">✅ حفظ وتفعيل المزامنة</button>
-          <button class="btn danger" onclick="clearSbConfig()" id="sb-clear-btn" style="display:none">🗑 إزالة الإعدادات</button>
         </div>
-        <div id="sb-test-result" style="margin-top:12px;font-size:13px"></div>
-      </div>
- 
-      <div class="card" style="border-right:4px solid var(--blue)">
-        <div class="card-title">📋 كود إنشاء الجداول (مرة واحدة)</div>
-        <p style="font-size:13px;color:var(--text2);margin-bottom:12px">في Supabase افتح <strong>SQL Editor</strong> والصق هذا الكود ثم اضغط <strong>Run</strong>:</p>
-        <div id="sql-code" style="background:#1a202c;color:#68d391;border-radius:10px;padding:14px;font-family:monospace;font-size:12px;direction:ltr;line-height:1.9;overflow-x:auto;user-select:all">
-create table if not exists co (id serial primary key, payload text);
-create table if not exists cu (id serial primary key, payload text);
-create table if not exists doc (id serial primary key, payload text);
-alter table co enable row level security;
-alter table cu enable row level security;
-alter table doc enable row level security;
-create policy "all" on co for all using (true) with check (true);
-create policy "all" on cu for all using (true) with check (true);
-create policy "all" on doc for all using (true) with check (true);</div>
-        <button class="btn sm" style="margin-top:10px" onclick="navigator.clipboard.writeText(document.getElementById('sql-code').innerText);this.textContent='✅ تم النسخ!'">📋 نسخ الكود</button>
       </div>
     </div>
- 
   </div>
 </div>
-</div> <div class="overlay" id="doc-modal">
+</div>
+ 
+<div class="overlay" id="doc-modal">
 <div class="modal">
   <div class="modal-head">
-    <h2 id="doc-modal-title">🧾 فاتورة جديدة</h2>
+    <h2 id="doc-modal-title">🧾 مستند جديد</h2>
     <button class="close-btn" onclick="closeModal('doc-modal')">✕</button>
   </div>
   <div class="form-grid two" style="margin-bottom:11px">
@@ -413,21 +341,467 @@ create policy "all" on doc for all using (true) with check (true);</div>
     <div class="fg"><label>👤 اختر عميلاً</label><select id="f-customer" onchange="fillCustomerData()"><option value="">-- اختر --</option></select></div>
   </div>
   <div class="form-grid two" style="margin-bottom:11px">
-    <div class="fg"><label>اسم العميل</label><input type="text" id="f-cust-name" placeholder="أو أدخل مباشرة"></div>
-    <div class="fg"><label>الرقم الضريبي للعميل</label><input type="text" id="f-cust-vat" placeholder="300..."></div>
+    <div class="fg"><label>اسم العميل</label><input type="text" id="f-cust-name"></div>
+    <div class="fg"><label>الرقم الضريبي للعميل</label><input type="text" id="f-cust-vat"></div>
   </div>
-  <div class="fg" style="margin-bottom:14px"><label>عنوان العميل</label><input type="text" id="f-cust-addr" placeholder="المدينة، الحي..."></div>
+  <div class="fg" style="margin-bottom:14px"><label>عنوان العميل</label><input type="text" id="f-cust-addr"></div>
   <div class="divider"></div>
   <div class="card-title" style="margin:0 0 10px">📦 البنود</div>
   <div class="items-wrap">
   <table class="items">
-    <thead><tr><th style="width:36%">الوصف</th><th style="width:10%">الكمية</th><th style="width:16%">سعر الوحدة</th><th style="width:14%">المبلغ الخاضع</th><th style="width:11%">ضريبة 15%</th><th style="width:11%">الإجمالي</th><th style="width:4%"></th></tr></thead>
+    <thead><tr><th style="width:36%">الوصف</th><th style="width:10%">الكمية</th><th style="width:16%">سعر الوحدة</th><th style="width:14%">المبلغ</th><th style="width:11%">الضريبة</th><th style="width:11%">الإجمالي</th><th style="width:4%"></th></tr></thead>
     <tbody id="items-body"></tbody>
   </table>
   </div>
   <button class="btn sm" style="margin-top:8px" onclick="addItem()">+ بند جديد</button>
+  <div class="totals-box">
+    <div class="totals-row"><span>الإجمالي الخاضع للضريبة:</span><span id="t-sub">0.00</span></div>
+    <div class="totals-row"><span>ضريبة القيمة المضافة (15%):</span><span id="t-vat">0.00</span></div>
+    <div class="totals-row"><span>المجموع الإجمالي:</span><span id="t-total">0.00</span></div>
+  </div>
+  <div class="btn-row"><button class="btn primary" onclick="saveDoc()">💾 حفظ المستند</button></div>
 </div>
 </div>
-
-</body>
-</html>
+ 
+<div class="overlay" id="preview-modal">
+<div class="modal" style="max-width:900px">
+  <div class="modal-head no-print">
+    <h2>👁️ معاينة المستند</h2>
+    <div>
+      <button class="btn primary sm" onclick="window.print()">🖨️ طباعة</button>
+      <button class="close-btn" onclick="closeModal('preview-modal')">✕</button>
+    </div>
+  </div>
+  <div id="doc-preview" class="inv-doc"></div>
+</div>
+</div>
+ 
+<div class="overlay" id="cust-modal">
+<div class="modal" style="max-width:500px">
+  <div class="modal-head"><h2>👤 إدارة عميل</h2><button class="close-btn" onclick="closeModal('cust-modal')">✕</button></div>
+  <input type="hidden" id="c-id">
+  <div class="fg" style="margin-bottom:10px"><label>اسم العميل</label><input type="text" id="c-name"></div>
+  <div class="fg" style="margin-bottom:10px"><label>الرقم الضريبي</label><input type="text" id="c-vat"></div>
+  <div class="fg" style="margin-bottom:10px"><label>الهاتف</label><input type="text" id="c-phone"></div>
+  <div class="fg" style="margin-bottom:14px"><label>العنوان</label><input type="text" id="c-addr"></div>
+  <button class="btn primary" onclick="saveCustomer()">💾 حفظ العميل</button>
+</div>
+</div>
+ 
+<div class="overlay" id="co-modal">
+<div class="modal" style="max-width:500px">
+  <div class="modal-head"><h2>🏢 إدارة شركة</h2><button class="close-btn" onclick="closeModal('co-modal')">✕</button></div>
+  <input type="hidden" id="co-id">
+  <div class="fg" style="margin-bottom:10px"><label>اسم الشركة (عربي)</label><input type="text" id="co-name-ar"></div>
+  <div class="fg" style="margin-bottom:10px"><label>اسم الشركة (إنجليزي)</label><input type="text" id="co-name-en"></div>
+  <div class="fg" style="margin-bottom:10px"><label>الرقم الضريبي للشركة</label><input type="text" id="co-vat"></div>
+  <div class="fg" style="margin-bottom:10px"><label>تفاصيل العنوان / الهاتف</label><input type="text" id="co-details"></div>
+  <div class="fg" style="margin-bottom:14px">
+    <label>شعار الشركة</label>
+    <div class="img-upload-box" onclick="document.getElementById('co-logo-file').click()">
+      <input type="file" id="co-logo-file" accept="image/*" onchange="handleImgUpload(this, 'co-logo-pre')">
+      <img id="co-logo-pre" class="img-preview" style="display:none">
+      <span id="co-logo-lbl">اضغط لرفع الشعار</span>
+    </div>
+  </div>
+  <button class="btn primary" onclick="saveCompany()">💾 حفظ الشركة</button>
+</div>
+</div>
+ 
+<script>
+let db = { companies: [], customers: [], docs: [] };
+let currentType = 'invoice';
+let isEn = false;
+let sbConfig = { url: '', key: '' };
+ 
+function loadAll() {
+  const local = localStorage.getItem('invoice_db');
+  if(local) db = JSON.parse(local);
+  const cfg = localStorage.getItem('sb_config');
+  if(cfg) sbConfig = JSON.parse(cfg);
+  
+  if(!db.companies) db.companies = [];
+  if(!db.customers) db.customers = [];
+  if(!db.docs) db.docs = [];
+  
+  renderDashboard();
+  renderInvoiceList();
+  renderQuotationList();
+  renderCustomerList();
+  renderCompanyList();
+  updateSelects();
+  testSbConnection();
+}
+ 
+function saveAll() {
+  localStorage.setItem('invoice_db', JSON.stringify(db));
+  renderDashboard();
+  updateSelects();
+  syncToSupabase();
+}
+ 
+function nav(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  event?.currentTarget?.classList.add('active');
+  toggleSidebar(false);
+}
+ 
+function toggleSidebar(show) {
+  const side = document.getElementById('sidebar');
+  const over = document.getElementById('sb-overlay');
+  if(show === undefined) {
+    side.classList.toggle('open');
+    over.classList.toggle('open');
+  } else {
+    show ? side.classList.add('open') : side.classList.remove('open');
+    show ? over.classList.add('open') : over.classList.remove('open');
+  }
+}
+ 
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+  if(id === 'preview-modal') document.body.removeAttribute('data-printing');
+}
+ 
+function updateSelects() {
+  const coSel = document.getElementById('f-company');
+  coSel.innerHTML = db.companies.map(c => `<option value="${c.id}">${c.nameAr}</option>`).join('') || '<option value="">-- أضف شركة أولاً --</option>';
+  const cuSel = document.getElementById('f-customer');
+  cuSel.innerHTML = '<option value="">-- اختر --</option>' + db.customers.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+}
+ 
+// إدارة الشركات
+function renderCompanyList() {
+  const cont = document.getElementById('co-cards');
+  if(!db.companies.length) { cont.innerHTML = '<div class="card empty-state">لا توجد شركات مضافة</div>'; return; }
+  cont.innerHTML = db.companies.map(c => `
+    <div class="card">
+      <div style="display:flex;justify-content:between;align-items:center;gap:14px">
+        ${c.logo ? `<img src="${c.logo}" style="max-width:70px;max-height:50px;object-fit:contain">` : ''}
+        <div style="flex:1">
+          <div style="font-weight:700">${c.nameAr}</div>
+          <div style="font-size:12px;color:var(--text2)">الرقم الضريبي: ${c.vat || 'لا يوجد'}</div>
+        </div>
+        <button class="btn sm danger" onclick="deleteCompany('${c.id}')">🗑️</button>
+      </div>
+    </div>
+  `).join('');
+}
+function openCompanyForm() {
+  document.getElementById('co-id').value = '';
+  document.getElementById('co-name-ar').value = '';
+  document.getElementById('co-name-en').value = '';
+  document.getElementById('co-vat').value = '';
+  document.getElementById('co-details').value = '';
+  document.getElementById('co-logo-pre').style.display = 'none';
+  document.getElementById('co-logo-lbl').style.display = 'block';
+  openModal('co-modal');
+}
+function handleImgUpload(input, preId) {
+  const file = input.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    document.getElementById(preId).src = e.target.result;
+    document.getElementById(preId).style.display = 'block';
+    if(preId === 'co-logo-pre') document.getElementById('co-logo-lbl').style.display = 'none';
+  }
+  reader.readAsDataURL(file);
+}
+function saveCompany() {
+  const ar = document.getElementById('co-name-ar').value.trim();
+  if(!ar) return alert('اسم الشركة مطلوب');
+  const co = {
+    id: Date.now().toString(),
+    nameAr: ar,
+    nameEn: document.getElementById('co-name-en').value.trim(),
+    vat: document.getElementById('co-vat').value.trim(),
+    details: document.getElementById('co-details').value.trim(),
+    logo: document.getElementById('co-logo-pre').style.display === 'block' ? document.getElementById('co-logo-pre').src : ''
+  };
+  db.companies.push(co);
+  saveAll(); renderCompanyList(); closeModal('co-modal');
+}
+function deleteCompany(id) { if(confirm('هل أنت متأكد من حذف الشركة؟')) { db.companies = db.companies.filter(c => c.id !== id); saveAll(); renderCompanyList(); } }
+ 
+// إدارة العملاء
+function renderCustomerList() {
+  const tbody = document.getElementById('cust-body');
+  document.getElementById('cust-empty').style.display = db.customers.length ? 'none' : 'block';
+  tbody.innerHTML = db.customers.map(c => `
+    <tr>
+      <td style="font-weight:600">${c.name}</td>
+      <td>${c.vat || '-'}</td>
+      <td>${c.phone || '-'}</td>
+      <td>${c.addr || '-'}</td>
+      <td><button class="del-btn" onclick="deleteCustomer('${c.id}')">🗑️</button></td>
+    </tr>
+  `).join('');
+}
+function openCustomerForm() {
+  document.getElementById('c-id').value = '';
+  document.getElementById('c-name').value = '';
+  document.getElementById('c-vat').value = '';
+  document.getElementById('c-phone').value = '';
+  document.getElementById('c-addr').value = '';
+  openModal('cust-modal');
+}
+function saveCustomer() {
+  const n = document.getElementById('c-name').value.trim();
+  if(!n) return alert('اسم العميل مطلوب');
+  db.customers.push({
+    id: Date.now().toString(),
+    name: n, vat: document.getElementById('c-vat').value.trim(),
+    phone: document.getElementById('c-phone').value.trim(), addr: document.getElementById('c-addr').value.trim()
+  });
+  saveAll(); renderCustomerList(); closeModal('cust-modal');
+}
+function deleteCustomer(id) { if(confirm('حذف العميل؟')) { db.customers = db.customers.filter(c => c.id !== id); saveAll(); renderCustomerList(); } }
+ 
+// إدارة المستندات (الفواتير وعروض الأسعار)
+function openNew(type) {
+  currentType = type;
+  document.getElementById('doc-modal-title').textContent = type === 'invoice' ? '🧾 فاتورة ضريبية جديدة' : '📄 عرض سعر جديد';
+  document.getElementById('f-type').value = type;
+  document.getElementById('f-num').value = (type === 'invoice' ? 'INV-' : 'QUO-') + Math.floor(1000 + Math.random() * 9000);
+  document.getElementById('f-date').value = new Date().toISOString().split('T')[0];
+  document.getElementById('f-due').value = new Date().toISOString().split('T')[0];
+  document.getElementById('f-customer').value = '';
+  document.getElementById('f-cust-name').value = '';
+  document.getElementById('f-cust-vat').value = '';
+  document.getElementById('f-cust-addr').value = '';
+  document.getElementById('items-body').innerHTML = '';
+  addItem();
+  openModal('doc-modal');
+}
+function onTypeChange() {
+  currentType = document.getElementById('f-type').value;
+  document.getElementById('f-num').value = (currentType === 'invoice' ? 'INV-' : 'QUO-') + Math.floor(1000 + Math.random() * 9000);
+}
+function fillCustomerData() {
+  const id = document.getElementById('f-customer').value;
+  const c = db.customers.find(cx => cx.id === id);
+  if(c) {
+    document.getElementById('f-cust-name').value = c.name;
+    document.getElementById('f-cust-vat').value = c.vat;
+    document.getElementById('f-cust-addr').value = c.addr;
+  }
+}
+function addItem() {
+  const tbody = document.getElementById('items-body');
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td><input type="text" class="i-desc" placeholder="اسم البند / الخدمة"></td>
+    <td><input type="number" class="i-qty" value="1" oninput="calcItems()" style="text-align:center"></td>
+    <td><input type="number" class="i-price" value="0" oninput="calcItems()"></td>
+    <td class="i-sub" style="font-weight:600;text-align:left">0.00</td>
+    <td class="i-vat" style="color:var(--text2);text-align:left">0.00</td>
+    <td class="i-total" style="font-weight:700;color:var(--green-dark);text-align:left">0.00</td>
+    <td><button class="del-btn" onclick="this.closest('tr').remove();calcItems()">✕</button></td>
+  `;
+  tbody.appendChild(tr);
+}
+function calcItems() {
+  let subtotal = 0, vatTotal = 0, grand = 0;
+  document.querySelectorAll('#items-body tr').forEach(tr => {
+    const qty = parseFloat(tr.querySelector('.i-qty').value) || 0;
+    const price = parseFloat(tr.querySelector('.i-price').value) || 0;
+    const amnt = qty * price;
+    const vt = amnt * 0.15;
+    const tot = amnt + vt;
+    
+    tr.querySelector('.i-sub').textContent = amnt.toFixed(2);
+    tr.querySelector('.i-vat').textContent = vt.toFixed(2);
+    tr.querySelector('.i-total').textContent = tot.toFixed(2);
+    
+    subtotal += amnt; vatTotal += vt; grand += tot;
+  });
+  document.getElementById('t-sub').textContent = subtotal.toFixed(2);
+  document.getElementById('t-vat').textContent = vatTotal.toFixed(2);
+  document.getElementById('t-total').textContent = grand.toFixed(2);
+}
+function saveDoc() {
+  const coId = document.getElementById('f-company').value;
+  if(!coId) return alert('الرجاء اختيار أو إضافة شركة أولاً');
+  const items = [];
+  document.querySelectorAll('#items-body tr').forEach(tr => {
+    const desc = tr.querySelector('.i-desc').value.trim();
+    if(desc) {
+      items.push({
+        desc, qty: parseFloat(tr.querySelector('.i-qty').value) || 0,
+        price: parseFloat(tr.querySelector('.i-price').value) || 0
+      });
+    }
+  });
+  if(!items.length) return alert('يجب إضافة بند واحد على الألق');
+  const doc = {
+    id: Date.now().toString(),
+    coId, type: currentType,
+    num: document.getElementById('f-num').value.trim(),
+    date: document.getElementById('f-date').value,
+    due: document.getElementById('f-due').value,
+    custName: document.getElementById('f-cust-name').value.trim() || 'عميل نقدي',
+    custVat: document.getElementById('f-cust-vat').value.trim(),
+    custAddr: document.getElementById('f-cust-addr').value.trim(),
+    items,
+    sub: parseFloat(document.getElementById('t-sub').textContent),
+    vat: parseFloat(document.getElementById('t-vat').textContent),
+    total: parseFloat(document.getElementById('t-total').textContent)
+  };
+  db.docs.push(doc);
+  saveAll(); renderInvoiceList(); renderQuotationList(); closeModal('doc-modal');
+}
+ 
+function renderInvoiceList() {
+  const tbody = document.getElementById('inv-body');
+  const f = db.docs.filter(d => d.type === 'invoice');
+  document.getElementById('inv-empty').style.display = f.length ? 'none' : 'block';
+  tbody.innerHTML = f.map((d, i) => {
+    const co = db.companies.find(c => c.id === d.coId)?.nameAr || '-';
+    return `<tr><td>${i+1}</td><td style="font-weight:700">${d.num}</td><td>${d.custName}</td><td>${d.date}</td><td style="font-weight:700;color:var(--green-dark)">${d.total.toFixed(2)}</td><td>${co}</td><td><button class="btn sm" onclick="viewDoc('${d.id}')">👁️ عرض</button> <button class="del-btn" onclick="deleteDoc('${d.id}')">🗑️</button></td></tr>`;
+  }).join('');
+}
+function renderQuotationList() {
+  const tbody = document.getElementById('quo-body');
+  const f = db.docs.filter(d => d.type === 'quotation');
+  document.getElementById('quo-empty').style.display = f.length ? 'none' : 'block';
+  tbody.innerHTML = f.map((d, i) => {
+    const co = db.companies.find(c => c.id === d.coId)?.nameAr || '-';
+    return `<tr><td>${i+1}</td><td style="font-weight:700">${d.num}</td><td>${d.custName}</td><td>${d.date}</td><td style="font-weight:700;color:var(--blue)">${d.total.toFixed(2)}</td><td>${co}</td><td><button class="btn sm" onclick="viewDoc('${d.id}')">👁️ عرض</button> <button class="del-btn" onclick="deleteDoc('${d.id}')">🗑️</button></td></tr>`;
+  }).join('');
+}
+function deleteDoc(id) { if(confirm('هل تريد حذف هذا المستند نهائياً؟')) { db.docs = db.docs.filter(d => d.id !== id); saveAll(); renderInvoiceList(); renderQuotationList(); } }
+ 
+function viewDoc(id) {
+  const d = db.docs.find(dx => dx.id === id);
+  if(!d) return;
+  const co = db.companies.find(c => c.id === d.coId) || { nameAr: 'مؤسسة تجارية', nameEn: 'Commercial Est', vat: '', details: '' };
+  
+  document.body.setAttribute('data-printing', 'true');
+  
+  let html = `
+    <div class="inv-topbar"></div>
+    <div class="inv-body">
+      <div class="inv-header">
+        <div class="inv-logo-block">
+          ${co.logo ? `<img src="${co.logo}" class="inv-logo-img">` : `<div class="inv-logo-fallback">CO</div>`}
+          <div>
+            <div class="inv-co-name">${co.nameAr}</div>
+            <div class="inv-co-en">${co.nameEn || ''}</div>
+            <div class="inv-co-detail">الرقم الضريبي: ${co.vat || '-'}<br>${co.details || ''}</div>
+          </div>
+        </div>
+        <div class="inv-title-block">
+          <div class="inv-title-ar">${d.type === 'invoice' ? 'فاتورة ضريبية مبسطة' : 'عرض سعر مالي'}</div>
+          <div class="inv-title-en">${d.type === 'invoice' ? 'TAX INVOICE' : 'QUOTATION'}</div>
+          <br>
+          <div class="inv-num-box">
+            <div class="inv-num-lbl">رقم المستند / DOC NO</div>
+            <div class="inv-num-val">${d.num}</div>
+          </div>
+        </div>
+      </div>
+ 
+      <div class="inv-strip">
+        <div class="inv-strip-item"><div class="s-lbl">تاريخ الإصدار / DATE</div><div class="s-val">${d.date}</div></div>
+        <div class="inv-strip-item"><div class="s-lbl">تاريخ الاستحقاق / DUE DATE</div><div class="s-val">${d.due || d.date}</div></div>
+      </div>
+ 
+      <div class="inv-parties">
+        <div class="inv-party">
+          <div class="pt">العميل / CLIENT</div>
+          <div class="pn">${d.custName}</div>
+          <div class="pd">الرقم الضريبي: ${d.custVat || '-'}<br>العنوان: ${d.custAddr || '-'}</div>
+        </div>
+      </div>
+ 
+      <div class="inv-items-head" style="display:grid;grid-template-columns:3fr 1fr 1fr 1fr">
+        <div>البيان / Description</div>
+        <div style="text-align:center">الكمية / Qty</div>
+        <div style="text-align:left">سعر الوحدة / Price</div>
+        <div style="text-align:left">الإجمالي / Total</div>
+      </div>
+      <div class="inv-items-wrap">
+        ${d.items.map(it => {
+          const itemSub = it.qty * it.price;
+          const itemTotal = itemSub * 1.15;
+          return `
+            <div class="inv-item-row" style="display:grid;grid-template-columns:3fr 1fr 1fr 1fr">
+              <div style="font-weight:600">${it.desc}</div>
+              <div style="text-align:center">${it.qty}</div>
+              <div style="text-align:left">${it.price.toFixed(2)}</div>
+              <div style="text-align:left;font-weight:700">${(d.type === 'invoice' ? itemTotal : itemSub).toFixed(2)}</div>
+            </div>
+          `;
+        }).join('')}
+      </div>
+ 
+      <div class="inv-bottom">
+        <div id="qrcode-box" style="padding:4px;background:#fff;border:1px solid #dde5ef;border-radius:6px;width:108px;height:108px"></div>
+        <div class="inv-totals-inner">
+          <div class="inv-tr"><span>المجموع الخاضع (غير شامل الضريبة):</span><strong>${d.sub.toFixed(2)} ر.س</strong></div>
+          ${d.type === 'invoice' ? `<div class="inv-tr"><span>ضريبة القيمة المضافة (15%):</span><strong>${d.vat.toFixed(2)} ر.س</strong></div>` : ''}
+          <div class="inv-tr grand"><span>المجموع الإجمالي الكلي:</span><strong>${d.total.toFixed(2)} ر.س</strong></div>
+        </div>
+      </div>
+      <div class="inv-footer-txt">شكرًا لتعاملكم معنا • نظام فواتير سحابي متوافق مع متطلبات هيئة الزكاة والضريبة والجمارك (ZATCA)</div>
+    </div>
+  `;
+  document.getElementById('doc-preview').innerHTML = html;
+  
+  setTimeout(() => {
+    document.getElementById('qrcode-box').innerHTML = '';
+    let qrText = `Company: ${co.nameAr}\nVAT: ${co.vat}\nDate: ${d.date}\nTotal: ${d.total}\nVAT Total: ${d.vat}`;
+    new QRCode(document.getElementById('qrcode-box'), { text: qrText, width: 100, height: 100 });
+  }, 100);
+ 
+  openModal('preview-modal');
+}
+ 
+function renderDashboard() {
+  const grid = document.getElementById('stats-grid');
+  const invs = db.docs.filter(d => d.type === 'invoice');
+  const quos = db.docs.filter(d => d.type === 'quotation');
+  const totalInvAmnt = invs.reduce((a, b) => a + b.total, 0);
+  
+  grid.innerHTML = `
+    <div class="stat"><div class="stat-ico"><i class="fa-solid fa-file-invoice"></i></div><div class="stat-num">${invs.length}</div><div class="stat-lbl">عدد الفواتير</div></div>
+    <div class="stat"><div class="stat-ico"><i class="fa-solid fa-money-bill-wave"></i></div><div class="stat-num">${totalInvAmnt.toFixed(2)}</div><div class="stat-lbl">إجمالي المبيعات (ر.س)</div></div>
+    <div class="stat"><div class="stat-ico"><i class="fa-solid fa-file-lines"></i></div><div class="stat-num">${quos.length}</div><div class="stat-lbl">عروض الأسعار</div></div>
+    <div class="stat"><div class="stat-ico"><i class="fa-solid fa-users"></i></div><div class="stat-num">${db.customers.length}</div><div class="stat-lbl">العملاء</div></div>
+  `;
+  
+  const rec = [...db.docs].sort((a,b) => b.id - a.id).slice(0, 5);
+  document.getElementById('recent-body').innerHTML = rec.map(d => `
+    <tr>
+      <td style="font-weight:700">${d.num}</td>
+      <td><span class="badge ${d.type === 'invoice'?'inv':'quo'}">${d.type==='invoice'?'فاتورة':'عرض سعر'}</span></td>
+      <td>${d.custName}</td>
+      <td>${d.date}</td>
+      <td style="font-weight:700">${d.total.toFixed(2)}</td>
+      <td><button class="btn sm" onclick="viewDoc('${d.id}')">👁️</button></td>
+    </tr>
+  `).join('');
+}
+ 
+function exportBackup() {
+  const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(db));
+  const dl = document.createElement('a');
+  dl.setAttribute("href", dataStr);
+  dl.setAttribute("download", `invoice_backup_${new Date().toISOString().split('T')[0]}.json`);
+  dl.click();
+}
+function importBackup(input) {
+  const file = input.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const parsed = JSON.parse(e.target.result);
+      if(parsed.docs || parsed.companies || parsed.customers) {
+        db = parsed; saveAll(); loadAll(); alert('تم استيراد النسخة الاحتياطية بنجاح!');
+      } else { alert('الملف غير صحيح'); }
+    } catch(err) { alert('خطأ في ق
